@@ -26,6 +26,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import javax.swing.BoxLayout;
+import java.awt.GridLayout;
+import java.awt.CardLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.SpringLayout;
 
 public class JuegoSpace {
 	
@@ -34,14 +40,14 @@ public class JuegoSpace {
 	JPanel tablero = new JPanel();
 	
 	//jugador
-	static int jugadorX=200,jugadorY=150,speedJugador=40,vidaJugador=1000;
+	static int jugadorX=200,jugadorY=150,speedJugador=40,vidaJugador=1000,vida=10;
 	static int cordJugador[][]= new int[4][4]; 
 	
-	
-
 	static JLabel lblNewLabelVidaJugador = new JLabel("V I D A  ||   "+vidaJugador);
 	static int cordProyectilesJugador[][]= new int[50][3];
 	//juego
+	 static JLabel labelVidaEnemiga = new JLabel("Vida Enemiga: "+10);
+	 static JLabel labelVidaJugador = new JLabel("Vida:"+vida);
 	static boolean gameOver=false;
 	static int limiteX=470;
 	static int limiteY=410;
@@ -49,7 +55,8 @@ public class JuegoSpace {
 	//mapa
 	Mapa cordBordesMapa[]= new Mapa[4];
 	//Enemigo
-	Enemigo enemigos[] =new Enemigo[1];
+	public static Enemigo enemigos[] =new Enemigo[1];
+	
 
 	/**
 	 * Launch the application.
@@ -95,6 +102,7 @@ public class JuegoSpace {
         }
 	};
 
+
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -121,16 +129,37 @@ public class JuegoSpace {
          		if(cordProyectilesJugador[i][1]-20>0) {
          			
          			cordProyectilesJugador[i][1]-=20;
+         			
+       			
          		}else {
          			cordProyectilesJugador[i][0]=0;
          			cordProyectilesJugador[i][1]=0;
          		}
-         		
-         	
-         	
+
          }
+			//esto es para detectar si la bala del jugador choco contra el enemigo
+		 colicion();
 
 	}
+	
+		//esto es para detectar si la bala del jugador choco contra el enemigo
+	public static void colicion() {
+		
+		for(int i=0;i<cordProyectilesJugador.length;i++) {
+			for(int i2=0;i2<enemigos.length;i2++) {
+	 			if(cordProyectilesJugador[i][0]<=enemigos[i2].x+20 && cordProyectilesJugador[i][0]>=enemigos[i2].x-10
+	 					&& cordProyectilesJugador[i][1]>enemigos[i2].y && cordProyectilesJugador[i][1]<enemigos[i2].y+30 ) {
+	 				
+	 				labelVidaEnemiga.setText("Vida Enemiga: "+enemigos[0].vida--);
+	 				System.out.println("impacto");
+	 				
+	 			}
+  	
+	 		}
+		}
+		
+	}
+	
 	public static void crearJugador() {
 		//lateral izqueirdo
 		cordJugador[0][0]=200;
@@ -164,6 +193,12 @@ public class JuegoSpace {
 				if(enemigos[i].x+30<limiteX) {
 					enemigos[i].x+=30;
 
+				}else {
+					
+					enemigos[i].y+=40;
+					enemigos[i].direccion=1;
+					
+
 				}
 			break;
 			//izquierda
@@ -171,17 +206,21 @@ public class JuegoSpace {
 				if(enemigos[i].x-30>0) {
 					enemigos[i].x-=30;
 
+				}else {
+					enemigos[i].y+=40;
+					enemigos[i].direccion=0;
 				}
 			break;
 			
-			case 2:
-				
-			break;
-			case 3:
-				
-			break;
+			
 			
 			}
+			if(enemigos[i].y>=limiteY) {
+				enemigos[i].x=90;
+				enemigos[i].y=50;
+			}
+			
+			
 		}
 	}
 	public void cambiarDireccionEnemiga() {
@@ -225,11 +264,13 @@ public class JuegoSpace {
 		 *  posicion 3 = alto de la parte 1 del cuerpo
 		 *  posicion 4= color de la parte 1 del cuerpo
 		 *  posicion 5= direccion hacia donde va el enemigo
+		 *  posicion 6= vida del enemigo
+
 						
-	
+					
 		 */
-						   //	 0   1  2  3     4     5
-		enemigos[0]= new Enemigo(90,50,10,30,Color.red,0);
+						   //	 0   1  2  3     4     5  6
+		enemigos[0]= new Enemigo(90,50,10,30,Color.red,0,10);
 
 	}
 	private void initialize() {
@@ -239,22 +280,24 @@ public class JuegoSpace {
 		//tiempos
 		timer.schedule(moverProyectilJugador, 0, 10);
 		timer.schedule(moverEnemigos, 0, 100);
-		timer.schedule(cambiarDireccionEnemiga, 0, 400);
+		//timer.schedule(cambiarDireccionEnemiga, 0, 400);
 		
 		
 		frame.setBounds(100, 100, 834, 492);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		JPanel panel = new JPanel();
-		panel.setBounds(0, 0, 818, 10);
 		panel.setBackground(new Color(0, 255, 255));
-		frame.getContentPane().add(panel);
-		tablero.setBounds(0, 10, 818, 443);
+		frame.getContentPane().add(panel, BorderLayout.NORTH);
+		
+		panel.add(labelVidaEnemiga);
+		
+		panel.add(labelVidaJugador);
 		
 		tablero.add(new MyGraphics());
 		tablero.setBackground(new Color(0, 0, 0));
-		frame.getContentPane().add(tablero);
+		frame.getContentPane().add(tablero, BorderLayout.CENTER);
 		tablero.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		
@@ -297,7 +340,7 @@ public class JuegoSpace {
 								for(int i=0;i<4;i++) {
 									cordJugador[i][1]+=speedJugador;
 								}
-								System.out.println("dsda");
+								
 	
 							}	
 						
@@ -340,7 +383,7 @@ public class JuegoSpace {
 						
 						
 					}
-				System.out.println(e.getKeyCode());
+				
 				}
 			}});
 		
