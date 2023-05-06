@@ -2,6 +2,8 @@ package Space;
 
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.MediaTracker;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
@@ -15,6 +17,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,12 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
-import java.awt.GridLayout;
-import java.awt.CardLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import javax.swing.SpringLayout;
 
 public class JuegoSpace {
 	
@@ -40,14 +37,17 @@ public class JuegoSpace {
 	JPanel tablero = new JPanel();
 	
 	//jugador
-	static int jugadorX=200,jugadorY=150,speedJugador=40,vidaJugador=1000,vida=10;
+	static int jugadorX=200,jugadorY=150,speedJugador=40,vidaJugador=1000;
 	static int cordJugador[][]= new int[4][4]; 
+	private Image enemigo1,enemigo2,enemigo3,boss;
+	private MediaTracker tracker;
+	private int frameIndex = 0;
+	private boolean isRunning = false;
 	
+
 	static JLabel lblNewLabelVidaJugador = new JLabel("V I D A  ||   "+vidaJugador);
 	static int cordProyectilesJugador[][]= new int[50][3];
 	//juego
-	 static JLabel labelVidaEnemiga = new JLabel("Vida Enemiga: "+10);
-	 static JLabel labelVidaJugador = new JLabel("Vida:"+vida);
 	static boolean gameOver=false;
 	static int limiteX=470;
 	static int limiteY=410;
@@ -55,8 +55,7 @@ public class JuegoSpace {
 	//mapa
 	Mapa cordBordesMapa[]= new Mapa[4];
 	//Enemigo
-	public static Enemigo enemigos[] =new Enemigo[1];
-	
+	Enemigo enemigos[] =new Enemigo[68];
 
 	/**
 	 * Launch the application.
@@ -79,7 +78,41 @@ public class JuegoSpace {
 	 */
 	public JuegoSpace() {
 		initialize();
+	
+	
+	
+	
+		
 	}
+	
+
+
+	public void enemigos() {
+		
+		
+		enemigo1=new ImageIcon("enemy1.gif").getImage();   
+		enemigo2= new ImageIcon("enemy2.gif").getImage();
+		enemigo3 = new ImageIcon("enemy3.gif").getImage();
+		boss=new ImageIcon("boss.gif").getImage();
+	    // Inicializa el MediaTracker
+	    tracker = new MediaTracker(tablero);
+	    tracker.addImage(enemigo1, 0);
+	    tracker.addImage(enemigo2, 0);
+	    tracker.addImage(enemigo3, 0);
+	    tracker.addImage(boss, 0);
+	    try {
+	        tracker.waitForAll();
+	    } catch (InterruptedException ex) {
+	        ex.printStackTrace();
+	    }
+	    
+	    // Comienza la animación
+	    isRunning = true;
+	    Thread animationThread = new Thread();
+	    animationThread.start();
+		
+	}
+	
 	
 	TimerTask moverProyectilJugador = new TimerTask() {
         public void run() {
@@ -90,7 +123,7 @@ public class JuegoSpace {
 	TimerTask moverEnemigos = new TimerTask() {
         public void run() {
          
-        	moverEnemigos();
+        //	moverEnemigos();
         }
 	};
 	
@@ -98,10 +131,9 @@ public class JuegoSpace {
 	TimerTask cambiarDireccionEnemiga = new TimerTask() {
         public void run() {
          
-        	cambiarDireccionEnemiga();
+        	//cambiarDireccionEnemiga();
         }
 	};
-
 
 	/**
 	 * Initialize the contents of the frame.
@@ -129,37 +161,16 @@ public class JuegoSpace {
          		if(cordProyectilesJugador[i][1]-20>0) {
          			
          			cordProyectilesJugador[i][1]-=20;
-         			
-       			
          		}else {
          			cordProyectilesJugador[i][0]=0;
          			cordProyectilesJugador[i][1]=0;
          		}
-
+         		
+         	
+         	
          }
-			//esto es para detectar si la bala del jugador choco contra el enemigo
-		 colicion();
 
 	}
-	
-		//esto es para detectar si la bala del jugador choco contra el enemigo
-	public static void colicion() {
-		
-		for(int i=0;i<cordProyectilesJugador.length;i++) {
-			for(int i2=0;i2<enemigos.length;i2++) {
-	 			if(cordProyectilesJugador[i][0]<=enemigos[i2].x+20 && cordProyectilesJugador[i][0]>=enemigos[i2].x-10
-	 					&& cordProyectilesJugador[i][1]>enemigos[i2].y && cordProyectilesJugador[i][1]<enemigos[i2].y+30 ) {
-	 				
-	 				labelVidaEnemiga.setText("Vida Enemiga: "+enemigos[0].vida--);
-	 				System.out.println("impacto");
-	 				
-	 			}
-  	
-	 		}
-		}
-		
-	}
-	
 	public static void crearJugador() {
 		//lateral izqueirdo
 		cordJugador[0][0]=200;
@@ -183,7 +194,7 @@ public class JuegoSpace {
 		cordJugador[3][3]=20;
 	
 	}
-	
+	/*
 	public void moverEnemigos() {
 		for(int i=0;i<enemigos.length;i++) {
 			switch(enemigos[i].direccion) {
@@ -193,34 +204,24 @@ public class JuegoSpace {
 				if(enemigos[i].x+30<limiteX) {
 					enemigos[i].x+=30;
 
-				}else {
-					
-					enemigos[i].y+=40;
-					enemigos[i].direccion=1;
-					
-
 				}
 			break;
 			//izquierda
 			case 1:
-				if(enemigos[i].x-30>0) {
-					enemigos[i].x-=30;
+				if(enemigos[i].x-10>0) {
+					enemigos[i].x-=10;
 
-				}else {
-					enemigos[i].y+=40;
-					enemigos[i].direccion=0;
 				}
 			break;
 			
-			
+			case 2:
+				
+			break;
+			case 3:
+				
+			break;
 			
 			}
-			if(enemigos[i].y>=limiteY) {
-				enemigos[i].x=90;
-				enemigos[i].y=50;
-			}
-			
-			
 		}
 	}
 	public void cambiarDireccionEnemiga() {
@@ -229,6 +230,8 @@ public class JuegoSpace {
 		}
 		
 	}
+	*/
+	
 	public void pintarMapa() {
 		/*LOS PRIMEROS 2 VALORES SON LAS CORDENADAS. EL VALOR 3= LARGO DE LA BARRA. VALOR 4= ALTO DE LA BARRA
 		 * 									1  2  3   4
@@ -240,7 +243,7 @@ public class JuegoSpace {
 	
 		
 		//barra horizontal arriba (la barra de hasta arriba)
-		cordBordesMapa[0]= new Mapa(0,0,limiteX,10);
+		cordBordesMapa[0]= new Mapa(-50,0,limiteX,10);
 		
 		//barra horizontal de abajo (la barra de hasta abajo)
 		cordBordesMapa[1]= new Mapa(0,limiteY,limiteX,10);
@@ -264,13 +267,51 @@ public class JuegoSpace {
 		 *  posicion 3 = alto de la parte 1 del cuerpo
 		 *  posicion 4= color de la parte 1 del cuerpo
 		 *  posicion 5= direccion hacia donde va el enemigo
-		 *  posicion 6= vida del enemigo
-
 						
-					
+	
 		 */
-						   //	 0   1  2  3     4     5  6
-		enemigos[0]= new Enemigo(90,50,10,30,Color.red,0,10);
+		//boss
+		
+		enemigos[0]=new Enemigo(230,20,10,30,Color.white,0);
+		
+		//pulpitos				   
+		for(int i=1; i<17; i++ ) {
+							//			 0   1  2  3     4        5
+			enemigos[i]= new Enemigo(-10+i*30,60,10,30,Color.white,0);
+			
+		}
+		//cucarachas1
+		for(int i=16; i<27; i++) {
+			
+			enemigos[i]= new Enemigo(-615+i*40,90,10,30,Color.white,0);
+		
+		}
+		
+		//variable espacio para separar monitos
+		int espacio=-15;
+			for(int i=27; i<38; i++) {
+				espacio+=40;
+			enemigos[i]= new Enemigo(espacio,120,10,30,Color.white,0);
+		
+		}
+		
+			int espacio1=-10;
+			for(int i=38; i<53; i++) {
+				espacio1+=30;
+				enemigos[i]= new Enemigo(espacio1,150,10,30,Color.white,0);
+			
+			}
+			int espacio2=-10;
+			for(int i=53; i<68; i++) {
+				espacio2+=30;
+				enemigos[i]= new Enemigo(espacio2,180,10,30,Color.white,0);
+			
+			}
+			
+			
+			
+		
+		enemigos();
 
 	}
 	private void initialize() {
@@ -280,24 +321,22 @@ public class JuegoSpace {
 		//tiempos
 		timer.schedule(moverProyectilJugador, 0, 10);
 		timer.schedule(moverEnemigos, 0, 100);
-		//timer.schedule(cambiarDireccionEnemiga, 0, 400);
+		timer.schedule(cambiarDireccionEnemiga, 0, 400);
 		
 		
 		frame.setBounds(100, 100, 834, 492);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		frame.getContentPane().setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.setBounds(0, 0, 818, 10);
 		panel.setBackground(new Color(0, 255, 255));
-		frame.getContentPane().add(panel, BorderLayout.NORTH);
-		
-		panel.add(labelVidaEnemiga);
-		
-		panel.add(labelVidaJugador);
+		frame.getContentPane().add(panel);
+		tablero.setBounds(0, 10, 818, 443);
 		
 		tablero.add(new MyGraphics());
 		tablero.setBackground(new Color(0, 0, 0));
-		frame.getContentPane().add(tablero, BorderLayout.CENTER);
+		frame.getContentPane().add(tablero);
 		tablero.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		
@@ -340,7 +379,7 @@ public class JuegoSpace {
 								for(int i=0;i<4;i++) {
 									cordJugador[i][1]+=speedJugador;
 								}
-								
+								System.out.println("dsda");
 	
 							}	
 						
@@ -383,7 +422,7 @@ public class JuegoSpace {
 						
 						
 					}
-				
+				System.out.println(e.getKeyCode());
 				}
 			}});
 		
@@ -426,20 +465,61 @@ public class JuegoSpace {
             }
             
             //pintarEnemigo
+            //boss
+            g.drawImage(boss,enemigos[0].x,enemigos[0].y,this);
+          //pulpito
+            	for(int i=1; i<16; i++) {
+            		
+            		g.drawImage(enemigo3, enemigos[i].x, enemigos[i].y, this);
+            		
+            	}
+                
+            	for(int i=16; i<27; i++) {
+            		
+            		g.drawImage(enemigo2, enemigos[i].x, enemigos[i].y, this);
+            		
+            	}
+            	
+            	for(int i=17; i<38; i++) {
+            		
+            		g.drawImage(enemigo2, enemigos[i].x, enemigos[i].y, this);
+            		
+            	}
+            	
+            		for(int i=38; i<53; i++) {
+            		
+            		g.drawImage(enemigo1, enemigos[i].x, enemigos[i].y, this);
+            		
+            	}
+            		
+            		for(int i=53; i<68; i++) {
+                		
+                		g.drawImage(enemigo1, enemigos[i].x, enemigos[i].y, this);
+                		
+                	}
+            //	g.drawImage(enemigo2,100,100,this);
+            	
             
-            for(int i=0;i<enemigos.length;i++) {
-            	//parte 1 del cuerpo. linea vertical
-            	g.setColor(enemigos[i].color);
-                g.fillRect(enemigos[i].x,enemigos[i].y, enemigos[i].largo, enemigos[i].alto);
-                //parte 2 linea horizontal
-                g.setColor(Color.blue);
-                g.fillRect(enemigos[i].x-10,enemigos[i].y+10, 30, 10);
-              
-            }
+            
            
            tablero.repaint();
       
        }
+        
+        public void run() {
+            while (isRunning) {
+                // Actualiza el índice del frame y repinta el JPanel
+                frameIndex = (frameIndex + 1) % enemigo1.getWidth(this);
+                repaint();
+                
+                // Espera 100 milisegundos antes de mostrar el siguiente frame
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
         
 	}
 
