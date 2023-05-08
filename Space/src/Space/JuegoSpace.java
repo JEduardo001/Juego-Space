@@ -4,10 +4,12 @@ import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,15 +22,16 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+
 import javax.swing.JPanel;
 
 //import JuegoMio.Juego.MyGraphics;
 
-import java.awt.BorderLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 
 public class JuegoSpace {
 	
@@ -62,7 +65,18 @@ public class JuegoSpace {
 	private MediaTracker tracker;
 	private int frameIndex = 0;
 	private boolean isRunning = false;
-
+	private Font Score = new Font("Arial", Font.PLAIN, 20);
+	public static int score = 0;
+	private Font Vidas = new Font("Arial", Font.PLAIN, 20);
+	public static int vidasjugador = 3;
+	//muro
+    private final static int Filas = 5; // Número de filas del muro
+    private final static int Columnas = 10; // Número de columnas del muro
+    private final static int Ancho_lad = 7; // Ancho de cada ladrillo
+    private final static int Alto_lad = 7; // Alto de cada ladrillo
+    private Rectangle[][][] ladrillos;
+	
+	
 	/**
 	 * Launch the application.
 	 */
@@ -84,7 +98,7 @@ public class JuegoSpace {
 	 */
 	public JuegoSpace() {
 		initialize();
-		
+		Ladrillos();
 	}
 	
 
@@ -157,7 +171,10 @@ public class JuegoSpace {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @return 
 	 */
+
+
 	public static void genProyectilJugador() {
 	
 				if(balaJugadorX==0) {
@@ -178,10 +195,11 @@ public class JuegoSpace {
 						&& balaJugadorY>enemigos[i2].y && balaJugadorY<enemigos[i2].y+30) {
 				
 					System.out.println("impacto bala jugador con enemigo linea: 180");
+					score=score+20;
 
 					if(i2==0) {
 						System.out.println("impacto con boss");
-
+						score=score+100-20;
 						if(vidaBoss-1==0) {
 							System.out.println("BOSS MUERTOOOOOO");
 						}else {
@@ -203,6 +221,7 @@ public class JuegoSpace {
 			}
 		
 	}
+	
 	public static void moverProyectilJugador() {
   
          		if(balaJugadorY-20>0) {
@@ -220,21 +239,42 @@ public class JuegoSpace {
 	public static void crearJugador() {
 		
 		//centro
-		cordJugador[0][0]=200;
+		cordJugador[0][0]=225;
 		cordJugador[0][1]=380;
 		cordJugador[0][2]=40;
 		cordJugador[0][3]=10;
 		
 		//cañon
-		cordJugador[1][0]=215;
+		cordJugador[1][0]=240;
 		cordJugador[1][1]=370;
 		cordJugador[1][2]=10;
 		cordJugador[1][3]=20;
 	
 	}
+	
+    private void Ladrillos() {
+    	
+    	ladrillos = new Rectangle[4][Filas][Columnas];
+    	
+        for (int muro = 0; muro < 4; muro++) {
+        	
+            for (int fila = 0; fila < Filas; fila++) {
+            	
+                for (int columna = 0; columna < Columnas; columna++) {
+                	
+                    int x = columna * Ancho_lad + 60 + muro * 100;
+                    int y = fila * Alto_lad + 320;
+                    
+                    ladrillos[muro][fila][columna] = new Rectangle(x, y, Ancho_lad, Alto_lad);
+                }
+            }
+        }
+    }
+	
+	
 	public void moverBoss() {
 		
-		if(enemigos[0].x<-600) {
+		if(enemigos[0].x<-1000) {
 			enemigos[0].x=limiteX-50;
 		}else {
 			enemigos[0].x-=30;
@@ -330,13 +370,15 @@ public class JuegoSpace {
 					System.out.println("impacto bala enemiga con jugador linea: 330");
 					balaEnemigaX=0;
 					balaEnemigaY=0;
-
+					vidasjugador=vidasjugador-1;
 				}
 			}
 			
 		
 	
 	}
+	
+	
 	public void ponerEnemigo() {
 		/*
 		 *   
@@ -353,12 +395,12 @@ public class JuegoSpace {
 		 */
 		//boss
 		
-		enemigos[0]=new Enemigo(230,20,10,30,Color.white,0);
+		enemigos[0]=new Enemigo(230,35,10,30,Color.white,0);
 		
 		//pulpitos				   
 		for(int i=1; i<17; i++ ) {
 							//			 0   1  2  3     4        5
-			enemigos[i]= new Enemigo(-10+i*30,60,10,30,Color.white,0);
+			enemigos[i]= new Enemigo(-10+i*30,70,10,30,Color.white,0);
 			
 		}
 		//cucarachas1
@@ -401,10 +443,10 @@ public class JuegoSpace {
 		ponerEnemigo();
 		//tiempos
 		timer.schedule(moverProyectilJugador, 0, 30);
-		timer.schedule(moverEnemigos, 0, 2000);
+		timer.schedule(moverEnemigos, 0, 5000);
 		timer.schedule(genProyectilEnemigo, 0, 20);
 		timer.schedule(moverProyectilEnemigo, 0, 100);
-		timer.schedule(moverBoss, 0, 100);
+		timer.schedule(moverBoss, 0, 150);
 
 		
 		
@@ -506,16 +548,71 @@ public class JuegoSpace {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-
-            
+ 
             
             //pintar mapa
             for(int i=0;i<cordBordesMapa.length;i++) {
             	g.setColor(Color.blue);
                 g.fillRect(cordBordesMapa[i].x,cordBordesMapa[i].y, cordBordesMapa[i].largo, cordBordesMapa[i].alto);
             	
-            	
             }
+            
+    		// linea de abajo
+    		g.setColor(Color.GREEN);
+    		g.fillRect(10, 397, 460, 5);
+            
+    		// Score
+    		g.setFont(Score);
+    		g.setColor(Color.green);
+    		g.drawString("SCORE : " + score, 330, 30);
+
+    		// Score
+    		g.setFont(Vidas);
+    		g.setColor(Color.green);
+    		g.drawString("VIDAS : " + vidasjugador, 60, 30);
+    		
+    		
+    		
+    		// Dibujar los ladrillos usando el array
+            for (int muro = 0; muro < 4; muro++) {
+            	
+                for (int fila = 0; fila < Filas; fila++) {
+                	
+                    for (int columna = 0; columna < Columnas; columna++) {
+                    	
+                        Rectangle ladrillo = ladrillos[muro][fila][columna];
+                        
+                        int x = ladrillo.x;
+                        int y = ladrillo.y;
+
+                        // Dibujar el ladrillo
+            
+                        g.setColor(Color.GREEN);
+                        g.fillRect(x, y, Ancho_lad - 2, Alto_lad - 2);
+
+                        // Dibujar la línea superior del ladrillo
+                        
+                        g.setColor(Color.WHITE);
+                        g.drawLine(x, y, x + Ancho_lad - 2, y);
+
+                        // Dibujar la línea izquierda del ladrillo
+                        
+                        g.drawLine(x, y, x, y + Alto_lad - 2);
+
+                        // Dibujar la línea inferior del ladrillo
+                        
+                        g.setColor(Color.DARK_GRAY);
+                        g.drawLine(x, y + Alto_lad - 2, x + Ancho_lad - 2, y + Alto_lad - 2);
+
+                        // Dibujar la línea derecha del ladrillo
+                        
+                        g.drawLine(x + Ancho_lad - 2, y, x + Ancho_lad - 2, y + Alto_lad - 2);
+                        
+                    }
+                }
+            }
+
+    		
             //pintar balas jugador
         
             if(balaJugadorX!=0) {
@@ -586,7 +683,8 @@ public class JuegoSpace {
                       g.fillRect(balaEnemigaX,balaEnemigaY,5,10);
 
               	}
-           
+        	   
+
            
            tablero.repaint();
       
