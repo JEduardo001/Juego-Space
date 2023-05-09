@@ -198,11 +198,11 @@ public class JuegoSpace {
 			if (balaJugadorX <= enemigos[i2].x + 30 && balaJugadorX >= enemigos[i2].x && balaJugadorY > enemigos[i2].y
 					&& balaJugadorY < enemigos[i2].y + 30) {
 
-				System.out.println("impacto bala jugador con enemigo linea: 180");
+			
 				score = score + 20;
 
 				if (i2 == 0) {
-					System.out.println("impacto con boss");
+					
 					score = score + 100 - 20;
 					if (vidaBoss - 1 == 0) {
 						System.out.println("BOSS MUERTOOOOOO");
@@ -270,7 +270,7 @@ public class JuegoSpace {
 							ladrillos[i][i2][i3].x = 0;
 							ladrillos[i][i2][i3].y = 0;
 
-							System.out.println("choque con pared linea 270");
+							
 
 						}
 					}
@@ -328,10 +328,12 @@ public class JuegoSpace {
 		for (int i = 1; i < enemigos.length; i++) {
 
 			// derecha
-
-			if (enemigos[i].y + 20 < limiteY) {
-				enemigos[i].y += 20;
+			if(enemigos[i].x !=0) {
+				if (enemigos[i].y + 20 < limiteY) {
+					enemigos[i].y += 20;
+				}
 			}
+			
 
 			// izquierda
 
@@ -343,26 +345,33 @@ public class JuegoSpace {
 		int espacio = 20;
 		for (int i = 1; i < 16; i++) {
 
-		    if (enemigos[i].x >= limiteX && direccion == 1) {
-		        direccion = -1; // Cambiar dirección hacia la izquierda
-		        enemigos[i].x+=espacio;
-		    } else if (enemigos[i].x <= 0 && direccion == -1) {
-		        direccion = 1; // Cambiar dirección hacia la derecha
-		        
-		    }
-		    enemigos[i].x += velocidad * direccion;
+			if(enemigos[i].x !=0) {
+				
+				if (enemigos[i].x >= limiteX && direccion == 1) {
+			        direccion = -1; // Cambiar dirección hacia la izquierda
+			        enemigos[i].x+=espacio;
+			    } else if (enemigos[i].x <= 0 && direccion == -1) {
+			        direccion = 1; // Cambiar dirección hacia la derecha
+			        
+			    }
+			    enemigos[i].x += velocidad * direccion;
+			}
+		    
 		}
 	
 		for (int i = 16; i < 68; i++) {
-
-		    if (enemigos[i].x >= limiteX+10 && direccion == 1) {
-		        direccion = -1; // Cambiar dirección hacia la izquierda
-		        enemigos[i].x+=espacio;
-		    } else if (enemigos[i].x <= 20 && direccion == -1) {
-		        direccion = 1; // Cambiar dirección hacia la derecha
-		       
-		    }
-		    enemigos[i].x += velocidad * direccion;
+			
+			if(enemigos[i].x !=0) {
+				if (enemigos[i].x >= limiteX+10 && direccion == 1) {
+			        direccion = -1; // Cambiar dirección hacia la izquierda
+			        enemigos[i].x+=espacio;
+			    } else if (enemigos[i].x <= 20 && direccion == -1) {
+			        direccion = 1; // Cambiar dirección hacia la derecha
+			       
+			    }
+			    enemigos[i].x += velocidad * direccion;
+			}
+		    
 		}
 		
 		
@@ -446,8 +455,7 @@ public class JuegoSpace {
 			if (balaEnemigaX <= cordJugador[0][0] + 40 && balaEnemigaX > cordJugador[0][0]
 					&& balaEnemigaY >= cordJugador[0][1] && balaEnemigaY <= cordJugador[0][1] + 10) {
 
-				// aqui vas a poner un contador el cual aumentara
-				System.out.println("impacto bala enemiga con jugador linea: 330");
+				
 				balaEnemigaX = 0;
 				balaEnemigaY = 0;
 				vidasjugador = vidasjugador - 1;
@@ -699,17 +707,23 @@ public class JuegoSpace {
 			// pintarEnemigo
 			// boss
 			if (enemigos[0].x != 0) {
-				g.drawImage(boss, enemigos[0].x, enemigos[0].y, this);
+				//System.out.println
+				if(enemigos[0].x !=0) {
+					g.drawImage(boss, enemigos[0].x, enemigos[0].y, this);
+
+				}
+					
 			}
 			// pulpito
 			for (int i = 1; i < 15; i++) {
 
 				if (enemigos[i].x != 0) {
+					
 					g.drawImage(enemigo3, enemigos[i].x, enemigos[i].y, this);
 				}
 
 			}
-//cucarachas
+			//cucarachas
 			for (int i = 16; i < 26; i++) {
 				if (enemigos[i].x != 0) {
 					g.drawImage(enemigo2, enemigos[i].x, enemigos[i].y, this);
