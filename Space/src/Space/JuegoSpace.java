@@ -40,7 +40,7 @@ public class JuegoSpace {
 	JPanel tablero = new JPanel();
 
 	//jugador
-	static int jugadorX=200,jugadorY=380,speedJugador=20,vidaJugador=1000;
+	static int jugadorX=200,jugadorY=380,speedJugador=10,vidaJugador=1000;
 	static int cordJugador[][]= new int[2][4]; 
 
 	//static JLabel jLabelVidaJugador = new JLabel("V I D A  ||   "+vidaJugador);
@@ -59,7 +59,7 @@ public class JuegoSpace {
 	public static int balaEnemigaX;
 	public static int balaEnemigaY;
 	//public static int proyectilEnemigo[][]=new int[5][2];
-	public static int vidaBoss=5;
+	public static int vidaBoss=1;
 
 	private Image enemigo1,enemigo2,enemigo3,boss;
 	private MediaTracker tracker;
@@ -70,10 +70,10 @@ public class JuegoSpace {
 	private Font Vidas = new Font("Arial", Font.PLAIN, 20);
 	public static int vidasjugador = 3;
 	//muro
-    private final static int Filas = 5; // Número de filas del muro
-    private final static int Columnas = 10; // Número de columnas del muro
-    private final static int Ancho_lad = 7; // Ancho de cada ladrillo
-    private final static int Alto_lad = 7; // Alto de cada ladrillo
+    private final static int Filas = 4; // Número de filas del muro
+    private final static int Columnas = 6; // Número de columnas del muro
+    private final static int Ancho_lad = 10; // Ancho de cada ladrillo
+    private final static int Alto_lad = 10; // Alto de cada ladrillo
     public static  Rectangle[][][] ladrillos = new Rectangle[4][Filas][Columnas];
     
 
@@ -179,7 +179,7 @@ public class JuegoSpace {
 
 				if(balaJugadorX==0) {
 
-					balaJugadorX=cordJugador[1][0];
+					balaJugadorX=cordJugador[1][0]+4;
 					balaJugadorY=cordJugador[1][1];
 				}
 
@@ -193,13 +193,34 @@ public class JuegoSpace {
 
 				if(balaJugadorX<=enemigos[i2].x+30 && balaJugadorX>=enemigos[i2].x
 						&& balaJugadorY>enemigos[i2].y && balaJugadorY<enemigos[i2].y+30) {
-
+					
+					//Audio
+					 try {
+					        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("AlienDestruido.wav").getAbsoluteFile());
+					        Clip clip = AudioSystem.getClip();
+					        clip.open(audioInputStream);
+					        clip.start();
+					    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+					         //System.out.println("Error al reproducir el sonido.");
+					    }
+					 
 					System.out.println("impacto bala jugador con enemigo linea: 180");
 					score=score+20;
 
 					if(i2==0) {
 						System.out.println("impacto con boss");
 						score=score+100-20;
+						
+						//Audio
+						 try {
+						        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("AlienDestruido.wav").getAbsoluteFile());
+						        Clip clip = AudioSystem.getClip();
+						        clip.open(audioInputStream);
+						        clip.start();
+						    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+						         //System.out.println("Error al reproducir el sonido.");
+						    }
+						 
 						if(vidaBoss-1==0) {
 							System.out.println("BOSS MUERTOOOOOO");
 						}else {
@@ -247,7 +268,7 @@ public class JuegoSpace {
 				
 				for(int i3=0;i3<Columnas;i3++) {
 					if(posicionX!=0) {
-						if(posicionX<=ladrillos[i][i2][i3].x+14 && posicionX>=ladrillos[i][i2][i3].x-3
+						if(posicionX<=ladrillos[i][i2][i3].x+10 && posicionX>=ladrillos[i][i2][i3].x-3
 								&& posicionY<=ladrillos[i][i2][i3].y+7 && posicionY-5>=ladrillos[i][i2][i3].y) {
 							
 							//si el dato balaDe = 0 la bala es del jugador si es 1 es del Enemigo, esto para saber que barr
@@ -267,7 +288,15 @@ public class JuegoSpace {
 							ladrillos[i][i2][i3].x=0;
 							ladrillos[i][i2][i3].y=0;
 							
-							
+							//Audio
+							 try {
+							        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("BloqueDestruido.wav").getAbsoluteFile());
+							        Clip clip = AudioSystem.getClip();
+							        clip.open(audioInputStream);
+							        clip.start();
+							    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+							         //System.out.println("Error al reproducir el sonido.");
+							    }
 							System.out.println("choque con pared linea 270");
 							
 						}
@@ -315,9 +344,18 @@ public class JuegoSpace {
 
 
 	public void moverBoss() {
-
+		
 		if(enemigos[0].x<-1000) {
 			enemigos[0].x=limiteX-50;
+			//Audio
+			 try {
+			        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("MovimientoBoss.wav").getAbsoluteFile());
+			        Clip clip = AudioSystem.getClip();
+			        clip.open(audioInputStream);
+			        clip.start();
+			    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+			         //System.out.println("Error al reproducir el sonido.");
+			    }
 		}else {
 			enemigos[0].x-=30;
 		}
@@ -407,7 +445,17 @@ public class JuegoSpace {
 				//comrobar si la bala enemiga choco con el jugador
 				if(balaEnemigaX<=cordJugador[0][0]+40 && balaEnemigaX>cordJugador[0][0]
 						&& balaEnemigaY>=cordJugador[0][1] && balaEnemigaY<=cordJugador[0][1]+10 ) {
-
+					
+					//Audio
+					 try {
+					        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("NaveDestruida.wav").getAbsoluteFile());
+					        Clip clip = AudioSystem.getClip();
+					        clip.open(audioInputStream);
+					        clip.start();
+					    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+					         //System.out.println("Error al reproducir el sonido.");
+					    }
+					 
 					//aqui vas a poner un contador el cual aumentara
 					System.out.println("impacto bala enemiga con jugador linea: 330");
 					balaEnemigaX=0;
@@ -489,7 +537,7 @@ public class JuegoSpace {
 		//timer.schedule(moverEnemigos, 0, 5000);
 		timer.schedule(genProyectilEnemigo, 0, 10);
 		timer.schedule(moverProyectilEnemigo, 0, 3);
-		timer.schedule(moverBoss, 0, 150);
+		timer.schedule(moverBoss, 0, 450);
 
 
 
@@ -528,7 +576,7 @@ public class JuegoSpace {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(gameOver!=true) {
-					// TODO Auto-generated method stu
+					// TODO Auto-generated method stub
 					//izquierda
 					if(e.getKeyCode()==65) {
 						if(cordJugador[0][0]-speedJugador>0+10) {
@@ -542,7 +590,7 @@ public class JuegoSpace {
 					}
 					//derecha
 					if(e.getKeyCode()==68) {
-						if(cordJugador[0][0]+speedJugador<limiteX-10) {
+						if(cordJugador[0][0]+speedJugador<limiteX-35) {
 							for(int i=0;i<2;i++) {
 								cordJugador[i][0]+=speedJugador;
 							}
@@ -609,7 +657,7 @@ public class JuegoSpace {
     		g.setColor(Color.green);
     		g.drawString("SCORE : " + score, 330, 30);
 
-    		// Score
+    		// Vidas jugador
     		g.setFont(Vidas);
     		g.setColor(Color.green);
     		g.drawString("VIDAS : " + vidasjugador, 60, 30);
@@ -750,7 +798,7 @@ public class JuegoSpace {
                 }
             }
         }
-
+        
 	}
 
 }
