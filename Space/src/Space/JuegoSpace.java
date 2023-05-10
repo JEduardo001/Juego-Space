@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.awt.Graphics2D;
+import javax.swing.JButton;
 
 import java.util.Random;
 import java.util.Timer;
@@ -24,7 +25,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 //import JuegoMio.Juego.MyGraphics;
@@ -38,21 +39,19 @@ public class JuegoSpace {
 
 	Timer timer = new Timer();
 	private static JFrame frame = new JFrame();;
-	JPanel tablero = new JPanel();
+	static JPanel tablero = new JPanel();
 
 	// jugador
-	static int jugadorX = 200, jugadorY = 380, speedJugador = 20, vidaJugador = 1000;
+	static int jugadorX = 200, jugadorY = 380, speedJugador = 10, vidaJugador = 3;
 	static int cordJugador[][] = new int[2][4];
 
-	// static JLabel jLabelVidaJugador = new JLabel("V I D A || "+vidaJugador);
-	// static int cordProyectilesJugador[][]= new int[50][3];
 	static int balaJugadorX, balaJugadorY;
 	// juego
 	static boolean gameOver = false;
 	static int limiteX = 470;
 	static int limiteY = 410;
 	static Random rand = new Random();
-
+	static String[] opciones = {"Jugar de Nuevo"};
 	// mapa
 	Mapa cordBordesMapa[] = new Mapa[4];
 	// Enemigo
@@ -62,19 +61,24 @@ public class JuegoSpace {
 	// public static int proyectilEnemigo[][]=new int[5][2];
 	public static int vidaBoss = 5;
 
-	private Image enemigo1, enemigo2, enemigo3, boss;
-	private MediaTracker tracker;
+	private static Image enemigo1;
+	private static Image enemigo2;
+	private static Image enemigo3;
+	private static Image boss;
+	private static MediaTracker tracker;
 	private int frameIndex = 0;
-	private boolean isRunning = false;
-	private Font Score = new Font("Arial", Font.PLAIN, 20);
+	private static boolean isRunning = false;
+	private Font Score = new Font("algerian", Font.PLAIN, 20);
 	public static int score = 0;
-	private Font Vidas = new Font("Arial", Font.PLAIN, 20);
-	public static int vidasjugador = 3;
+	private Font Vidas = new Font("algerian", Font.PLAIN, 20);
+	private Font Controles = new Font("bauhaus 93", Font.PLAIN, 20);
+
+	
 	// muro
-	private final static int Filas = 5; // Número de filas del muro
-	private final static int Columnas = 10; // Número de columnas del muro
-	private final static int Ancho_lad = 7; // Ancho de cada ladrillo
-	private final static int Alto_lad = 7; // Alto de cada ladrillo
+	private final static int Filas = 4; // Número de filas del muro
+	private final static int Columnas = 6; // Número de columnas del muro
+	private final static int Ancho_lad = 10; // Ancho de cada ladrillo
+	private final static int Alto_lad = 10; // Alto de cada ladrillo
 	public static Rectangle[][][] ladrillos = new Rectangle[4][Filas][Columnas];
 	public static int velocidad = 10, direccion = 1;
 	
@@ -102,7 +106,7 @@ public class JuegoSpace {
 
 	}
 
-	public void enemigos() {
+	public static void enemigos() {
 
 		enemigo1 = new ImageIcon("enemy1.gif").getImage();
 		enemigo2 = new ImageIcon("enemy2.gif").getImage();
@@ -184,7 +188,7 @@ public class JuegoSpace {
 
 		if (balaJugadorX == 0) {
 
-			balaJugadorX = cordJugador[1][0];
+			balaJugadorX = cordJugador[1][0]+4;
 			balaJugadorY = cordJugador[1][1];
 		}
 
@@ -198,17 +202,50 @@ public class JuegoSpace {
 			if (balaJugadorX <= enemigos[i2].x + 30 && balaJugadorX >= enemigos[i2].x && balaJugadorY > enemigos[i2].y
 					&& balaJugadorY < enemigos[i2].y + 30) {
 
+				//Audio
+				 try {
+				        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("AlienDestruido.wav").getAbsoluteFile());
+				        Clip clip = AudioSystem.getClip();
+				        clip.open(audioInputStream);
+				        clip.start();
+				    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				         //System.out.println("Error al reproducir el sonido.");
+				    }
 			
 				score = score + 20;
 
 				if (i2 == 0) {
 					
+					
+					//Audio
+					 try {
+					        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("AlienDestruido.wav").getAbsoluteFile());
+					        Clip clip = AudioSystem.getClip();
+					        clip.open(audioInputStream);
+					        clip.start();
+					    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+					         //System.out.println("Error al reproducir el sonido.");
+					    }
+					
 					score = score + 100 - 20;
 					if (vidaBoss - 1 == 0) {
-						System.out.println("BOSS MUERTOOOOOO");
+						
+						int seleccion = JOptionPane.showOptionDialog(null, "JEFE DERROTADO!!! Tu puntuacion fue: "+score, "",
+				                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+						
+						if(seleccion==0) {
+							vidaJugador=3;
+							vidaBoss=5;
+							score=0;
+							crearJugador();
+							ponerEnemigo();
+							Ladrillos();
+							//gameOver=true;
+						}
+
 					} else {
 						vidaBoss--;
-
+						
 					}
 
 				} else {
@@ -250,7 +287,7 @@ public class JuegoSpace {
 
 				for (int i3 = 0; i3 < Columnas; i3++) {
 					if (posicionX != 0) {
-						if (posicionX <= ladrillos[i][i2][i3].x + 14 && posicionX >= ladrillos[i][i2][i3].x - 3
+						if (posicionX <= ladrillos[i][i2][i3].x + 10 && posicionX >= ladrillos[i][i2][i3].x - 3
 								&& posicionY <= ladrillos[i][i2][i3].y + 7 && posicionY - 5 >= ladrillos[i][i2][i3].y) {
 
 							// si el dato balaDe = 0 la bala es del jugador si es 1 es del Enemigo, esto
@@ -270,7 +307,15 @@ public class JuegoSpace {
 							ladrillos[i][i2][i3].x = 0;
 							ladrillos[i][i2][i3].y = 0;
 
-							
+							//Audio
+							 try {
+							        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("BloqueDestruido.wav").getAbsoluteFile());
+							        Clip clip = AudioSystem.getClip();
+							        clip.open(audioInputStream);
+							        clip.start();
+							    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+							         //System.out.println("Error al reproducir el sonido.");
+							    }
 
 						}
 					}
@@ -294,10 +339,11 @@ public class JuegoSpace {
 		cordJugador[1][1] = 370;
 		cordJugador[1][2] = 10;
 		cordJugador[1][3] = 20;
+		
 
 	}
 
-	private void Ladrillos() {
+	private static void Ladrillos() {
 
 		for (int muro = 0; muro < 4; muro++) {
 
@@ -318,6 +364,17 @@ public class JuegoSpace {
 
 		if (enemigos[0].x < -1000) {
 			enemigos[0].x = limiteX - 30;
+			
+			//Audio
+			 try {
+			        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("MovimientoBoss.wav").getAbsoluteFile());
+			        Clip clip = AudioSystem.getClip();
+			        clip.open(audioInputStream);
+			        clip.start();
+			    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+			         //System.out.println("Error al reproducir el sonido.");
+			    }	
+			
 		} else {
 			enemigos[0].x -= 30;
 		}
@@ -328,11 +385,15 @@ public class JuegoSpace {
 		for (int i = 1; i < enemigos.length; i++) {
 
 			// derecha
-			if(enemigos[i].x !=0) {
-				if (enemigos[i].y + 20 < limiteY) {
-					enemigos[i].y += 20;
+			if(enemigos[66].y+20<limiteY-100) {
+				if(enemigos[i].x !=0) {
+					
+					if (enemigos[i].y + 20 < limiteY) {
+						enemigos[i].y += 20;
+					}
 				}
 			}
+			
 			
 
 			// izquierda
@@ -385,23 +446,7 @@ public class JuegoSpace {
 	
 	}
 	
-	public void moverEnemigosLadoI() {
-		/*
-		for (int i = 1; i < 16; i++) {
-			if (enemigos[i].x >= limiteX-20 && direccion == -1) {
-				
-			
-				enemigos[i].x -= velocidad+10;
-				direccion = -1;
 
-			} else {
-
-				direccion = 1;
-			}
-
-		}
-*/
-	}
 
 	public void pintarMapa() {
 		/*
@@ -454,17 +499,48 @@ public class JuegoSpace {
 			// comrobar si la bala enemiga choco con el jugador
 			if (balaEnemigaX <= cordJugador[0][0] + 40 && balaEnemigaX > cordJugador[0][0]
 					&& balaEnemigaY >= cordJugador[0][1] && balaEnemigaY <= cordJugador[0][1] + 10) {
-
+				
+				//Audio
+				 try {
+				        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("NaveDestruida.wav").getAbsoluteFile());
+				        Clip clip = AudioSystem.getClip();
+				        clip.open(audioInputStream);
+				        clip.start();
+				    } catch(UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+				         //System.out.println("Error al reproducir el sonido.");
+				    }
 				
 				balaEnemigaX = 0;
 				balaEnemigaY = 0;
-				vidasjugador = vidasjugador - 1;
+				vidaJugador--;
+				if(vidaJugador<=0) {
+					tablero.repaint();
+					
+					
+					int seleccion = JOptionPane.showOptionDialog(null, "GAME OVER!!! Tu puntuacion fue: "+score, "GAME OVER",
+			                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+					
+					if(seleccion==0) {
+						vidaJugador=3;
+						vidaBoss=5;
+						score=0;
+						crearJugador();
+						ponerEnemigo();
+						Ladrillos();
+						//gameOver=true;
+					}
+					
+
+				}
+					
+
+				
 			}
 		}
 
 	}
 
-	public void ponerEnemigo() {
+	public static void ponerEnemigo() {
 		/*
 		 * 
 		 * Aqui abajo le doy parametros del enemigo osea los datos que tendra. Cada dato
@@ -529,20 +605,16 @@ public class JuegoSpace {
 		// timer.schedule(moverEnemigos, 0, 5000);
 		timer.schedule(genProyectilEnemigo, 0, 10);
 		timer.schedule(moverProyectilEnemigo, 0, 3);
-		timer.schedule(moverBoss, 0, 150);
+		timer.schedule(moverBoss, 0, 450);
 		timer.schedule(moverEnemigosAbajo,0,16000);
 		timer.schedule(moverEnemigosLadoD, 0, 1000);
 		
 		frame.setBounds(100, 100, 834, 492);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		frame.setLocationRelativeTo(null);
 		frame.getContentPane().setLayout(null);
 
-		JPanel panel = new JPanel();
-		panel.setBounds(0, 0, 818, 10);
-		panel.setBackground(new Color(0, 255, 255));
-
-		frame.getContentPane().add(panel);
+	
 		tablero.setBounds(0, 10, 808, 503);
 
 		tablero.add(new MyGraphics());
@@ -579,7 +651,7 @@ public class JuegoSpace {
 					}
 					// derecha
 					if (e.getKeyCode() == 68) {
-						if (cordJugador[0][0] + speedJugador < limiteX - 10) {
+						if (cordJugador[0][0] + speedJugador < limiteX - 35) {
 							for (int i = 0; i < 2; i++) {
 								cordJugador[i][0] += speedJugador;
 							}
@@ -587,7 +659,7 @@ public class JuegoSpace {
 						}
 
 					}
-					if (e.getKeyCode() == 10) {
+					if (e.getKeyCode() == 77) {
 
 						// Audio
 						try {
@@ -603,7 +675,7 @@ public class JuegoSpace {
 						genProyectilJugador();
 
 					}
-					// System.out.println(cordJugador[0][0]+": "+cordJugador[0][1]);
+					 
 				}
 			}
 
@@ -642,12 +714,16 @@ public class JuegoSpace {
 			// Score
 			g.setFont(Score);
 			g.setColor(Color.green);
-			g.drawString("SCORE : " + score, 330, 30);
+			g.drawString("SCORE : " + score, 340, 40);
 
 			// Score
 			g.setFont(Vidas);
 			g.setColor(Color.green);
-			g.drawString("VIDAS : " + vidasjugador, 60, 30);
+			g.drawString("VIDAS : " + vidaJugador, 20, 40);
+			//Controles
+			g.setFont(Controles);
+			g.setColor(Color.green);
+			g.drawString("Disparar = M ", 170, 40);
 
 			// Dibujar los ladrillos usando el array
 			for (int muro = 0; muro < 4; muro++) {
@@ -709,7 +785,7 @@ public class JuegoSpace {
 			if (enemigos[0].x != 0) {
 				//System.out.println
 				if(enemigos[0].x !=0) {
-					g.drawImage(boss, enemigos[0].x, enemigos[0].y, this);
+					g.drawImage(boss, enemigos[0].x, enemigos[0].y+20, this);
 
 				}
 					
